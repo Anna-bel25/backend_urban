@@ -59,42 +59,6 @@ export class VisitService {
     }
   }
   
-  
-  
-
-
-  // async findUserByCedula(cedula: string) {
-  //   try {
-  //       if (!cedula) {
-  //           throw new Error('La cédula no puede estar vacía');
-  //       }
-
-  //       return await this.prisma.usuario.findUnique({
-  //           where: { NumeroCedula: cedula },
-  //       });
-  //   } catch (error) {
-  //       throw new Error('Error al buscar el usuario: ' + error.message);
-  //   }
-  // }
-
-
-  // async findAll(cedulaVisitante: string) {
-  //   try {
-  //     const solicitudes = await this.prisma.solicitudVisita.findMany({
-  //       where: { CedulaVisitante: cedulaVisitante },
-  //     });
-  
-  //     if (!solicitudes.length) {
-  //       throw new Error('No se encontraron solicitudes para el visitante');
-  //     }
-  
-  //     return solicitudes;
-  //   } catch (error) {
-  //     console.error('Error al obtener las solicitudes de visita:', error);
-  //     throw new Error('Hubo un error al obtener las solicitudes de visita' + error.message);
-  //   }
-  // }
-
 
   async findOne(id: number) {
     try {

@@ -41,17 +41,16 @@ export class UserService {
         }
     }
 
-    // Método para buscar al usuario por sus credenciales
     async findByLogin(authDto: AuthDto) {
         const user = await this.prisma.usuario.findUnique({
-            where: { NumeroCedula: authDto.NumeroCedula }, // Cambia esto según tu modelo
+            where: { NumeroCedula: authDto.NumeroCedula },
         });
 
         if (user && await bcrypt.compare(authDto.Contrasena, user.Contrasena)) {
             return user;
         }
 
-        return null; // Devuelve null si no se encuentra el usuario o las credenciales no son válidas
+        return null;
     }
 
     async login(AuthDto: AuthDto) {

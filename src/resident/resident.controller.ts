@@ -24,10 +24,10 @@ export class ResidentController {
   }
 
 
-  @Get('all')
+  @Get('approve')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Obtener todas las solicitudes de visita de un residente' })
+  @ApiOperation({ summary: 'Obtener todas las solicitudes aprobadas de visita de un residente' })
   @ApiResponse({ status: 200, description: 'OK', type: [ApproveRejectVisitDto] })
   findAll(@Request() req) {
     const cedulaResidente = req.user.NumeroCedula;
@@ -35,7 +35,7 @@ export class ResidentController {
   }
   
 
-  @Get(':id')
+  @Get('all')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Obtener todas las visitas de un residente' })
