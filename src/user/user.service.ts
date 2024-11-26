@@ -80,9 +80,10 @@ export class UserService {
     }
 
     private _createToken(user: any) {
-        const payload = { id: user.IdUsuario };
+        const payload = { id: user.IdUsuario, NumeroCedula: user.NumeroCedula };
         const Authorization = this.jwtService.sign(payload);
         return { expiresIn: '1h', Authorization };
     }
+    
     
 }

@@ -17,6 +17,7 @@ export class AuthGuard implements CanActivate {
 
         try {
             request.user = this.jwtService.verify(token);
+            console.log("Usuario decodificado:", request.user);
             return true;
         } catch {
             console.log("Token no válido o expirado");

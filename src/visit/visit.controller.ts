@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards, Query } from '@nestjs/common';
 import { VisitService } from './visit.service';
 import { CreateVisitDto } from './dto/create-visit.dto';
 import { UpdateVisitDto } from './dto/update-visit.dto';
@@ -18,18 +18,11 @@ export class VisitController {
   @ApiResponse({ status: 201, description: 'Solicitud de visita creada correctamente' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   create(@Body() createVisitDto: CreateVisitDto, @Request() req) {
-    const cedulaVisitante = req.user.NumeroCedula; 
+    const cedulaVisitante = req.user.NumeroCedula;
+    console.log('Cédula del visitante:', cedulaVisitante);
     createVisitDto.cedulaVisitante = cedulaVisitante;
-    //return this.visitService.create(createVisitDto);
-    try {
-      const result = this.visitService.create(createVisitDto);
-      return result;
-    } catch (error) {
-      console.error('Error al crear la solicitud de visita:', error);
-      throw new Error('Hubo un error al crear la solicitud de visita');
-    }
+    return this.visitService.create(createVisitDto);
   }
-
 
   @Get('all')
   @UseGuards(AuthGuard)
@@ -37,8 +30,11 @@ export class VisitController {
   @ApiOperation({ summary: 'Obtener todas las solicitudes de visita de un visitante' })
   @ApiResponse({ status: 200, description: 'OK', type: [CreateVisitDto] })
   @ApiResponse({ status: 400, description: 'Bad Request' })
-  findAll(@Request() req) {
-    const cedulaVisitante = req.user.NumeroCedula; 
+  async findAll(@Query('cedula') cedulaVisitante: string, @Request() req) {
+    if (!cedulaVisitante) {
+        cedulaVisitante = req.user.NumeroCedula;
+    }
+    console.log('Cédula del visitante:', cedulaVisitante);
     return this.visitService.findAll(cedulaVisitante);
   }
 

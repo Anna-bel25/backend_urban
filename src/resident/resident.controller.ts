@@ -10,37 +10,42 @@ import { ApproveRejectVisitDto } from './dto/approve-reject-visit.dto';
 export class ResidentController {
   constructor(private readonly residentService: ResidentService) {}
 
-  @Post('visit')
+  @Post('post')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Registrar una nueva visita' })
   @ApiResponse({ status: 201, description: 'Visita registrada correctamente' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
   create(@Body() createResidentDto: CreateResidentDto, @Request() req) {
     const cedulaResidente = req.user.NumeroCedula;
+    console.log('Cédula del residete:', cedulaResidente);
     createResidentDto.cedulaResidente = cedulaResidente;
     return this.residentService.create(createResidentDto);
   }
 
 
-  @Get('visits')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Obtener todas las visitas de un residente' })
-  @ApiResponse({ status: 200, description: 'OK', type: [CreateResidentDto] })
-  findAllVisits(@Request() req) {
-    const cedulaResidente = req.user.NumeroCedula;
-    return this.residentService.findAllVisits(cedulaResidente);
-  }
-
-
-  @Get('requests')
+  @Get('all')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Obtener todas las solicitudes de visita de un residente' })
   @ApiResponse({ status: 200, description: 'OK', type: [ApproveRejectVisitDto] })
-  findAllRequests(@Request() req) {
+  findAll(@Request() req) {
     const cedulaResidente = req.user.NumeroCedula;
-    return this.residentService.findAllRequests(cedulaResidente);
+    return this.residentService.findAll(cedulaResidente);
+  }
+  
+
+  @Get(':id')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Obtener todas las visitas de un residente' })
+  @ApiResponse({ status: 200, description: 'OK', type: [CreateResidentDto] })
+  async findOne(@Query('cedula') cedulaResidente: string, @Request() req) {
+    if (!cedulaResidente) {
+      cedulaResidente = req.user.NumeroCedula;
+    }
+    console.log('Cédula del residente:', cedulaResidente);
+    return this.residentService.findOne(cedulaResidente);
   }
 
 

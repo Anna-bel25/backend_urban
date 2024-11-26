@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateResidentDto } from './dto/create-resident.dto';
 import { UpdateResidentDto } from './dto/update-resident.dto';
 import { PrismaService } from 'src/prisma.service';
-import { EstadoRegistro, EstadoSolicitud } from '@prisma/client';
+import { EstadoSolicitud } from '@prisma/client';
 import { ApproveRejectVisitDto } from './dto/approve-reject-visit.dto';
 
 @Injectable()
@@ -11,7 +11,8 @@ export class ResidentService {
 
   async create(createResidentDto: CreateResidentDto) {
     try {
-      const { nombreVisitante, apellidoVisitante, cedulaResidente, cedulaVisitante, manzanaVilla, fechaVisita, medioIngreso } = createResidentDto;
+      const { nombreVisitante, apellidoVisitante, cedulaResidente, cedulaVisitante, manzanaVilla, fechaVisita, estadoSolicitud, medioIngreso } = createResidentDto;
+      const estado = estadoSolicitud || EstadoSolicitud.Ingresada;
 
       const registro = await this.prisma.registroVisita.create({
         data: {
@@ -22,7 +23,7 @@ export class ResidentService {
           ManzanaVilla: manzanaVilla,
           FechaVisita: new Date(fechaVisita),
           MedioIngreso: medioIngreso,
-          EstadoRegistro: EstadoRegistro.Registrada,
+          EstadoSolicitud: estado,
         },
       });
 
@@ -33,26 +34,8 @@ export class ResidentService {
     }
   }
 
-  
-  async findAllVisits(cedulaResidente: string) {
-    try {
-      const visitas = await this.prisma.registroVisita.findMany({
-        where: { CedulaResidente: cedulaResidente },
-      });
-  
-      if (!visitas.length) {
-        throw new Error('No se encontraron visitas para el residente');
-      }
-  
-      return visitas;
-    } catch (error) {
-      console.error('Error al obtener las visitas:', error);
-      throw new Error('Error al obtener las visitas: ' + error.message);
-    }
-  }
 
-  
-  async findAllRequests(cedulaResidente: string) {
+  async findAll(cedulaResidente: string) {
     try {
       const solicitudes = await this.prisma.solicitudVisita.findMany({
         where: { CedulaResidente: cedulaResidente },
@@ -69,6 +52,28 @@ export class ResidentService {
     }
   }
 
+
+  async findOne(cedulaResidente: string) {
+    try {
+      if (!cedulaResidente) {
+        throw new Error('La cédula del residente es requerida');
+      }
+
+      const visitas = await this.prisma.registroVisita.findMany({
+        where: { CedulaResidente: cedulaResidente },
+      });
+  
+      if (!visitas.length) {
+        throw new Error('No se encontraron visitas para el residente');
+      }
+  
+      return visitas;
+    } catch (error) {
+      console.error('Error al obtener las visitas:', error);
+      throw new Error('Error al obtener las visitas: ' + error.message);
+    }
+  }
+
   
   async approveOrRejectVisit(idSolicitud: number, approveRejectVisitDto: ApproveRejectVisitDto) {
     try {
@@ -79,7 +84,7 @@ export class ResidentService {
         data: { EstadoSolicitud: estado },
       });
 
-      if (estado === EstadoSolicitud.Aceptada) {
+      if (estado === EstadoSolicitud.Aprobada) {
         return await this.prisma.registroVisita.create({
           data: {
             NombreVisitante: solicitud.NombreVisitante,
@@ -89,7 +94,7 @@ export class ResidentService {
             ManzanaVilla: solicitud.ManzanaVilla,
             FechaVisita: solicitud.FechaVisita,
             MedioIngreso: solicitud.MedioIngreso,
-            EstadoRegistro: EstadoRegistro.Completada, 
+            EstadoSolicitud: EstadoSolicitud.Aprobada, 
           },
         });
       }

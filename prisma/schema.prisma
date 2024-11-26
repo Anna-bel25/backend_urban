@@ -60,7 +60,7 @@ model RegistroVisita {
   ManzanaVilla        String
   FechaVisita         DateTime
   MedioIngreso        MedioIngreso
-  EstadoRegistro      EstadoRegistro
+  EstadoSolicitud     EstadoSolicitud
   FechaCreacion       DateTime @default(now())
   FechaActualizacion  DateTime @updatedAt
 
@@ -99,14 +99,14 @@ enum MedioIngreso {
 
 enum EstadoSolicitud {
   Ingresada
-  Aceptada
+  Aprobada
   Rechazada
 }
 
 enum EstadoRegistro {
-  Registrada
-  Completada
-  Cancelada
+  Ingresada
+  Aceptada
+  Rechazada
 }
 
 enum MetodoAutenticacion {

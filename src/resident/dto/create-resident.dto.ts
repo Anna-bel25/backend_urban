@@ -1,5 +1,5 @@
-import { EstadoRegistro, MedioIngreso } from "@prisma/client";
-import { IsDate, IsDateString, IsEnum, IsNotEmpty, IsString } from "class-validator";
+import { EstadoSolicitud, MedioIngreso } from "@prisma/client";
+import { IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class CreateResidentDto {
     @IsString()
@@ -26,10 +26,11 @@ export class CreateResidentDto {
     @IsNotEmpty()
     fechaVisita: string;
 
+    @IsOptional()
+    @IsEnum(EstadoSolicitud)
+    estadoSolicitud?: EstadoSolicitud;
+
     @IsEnum(MedioIngreso)
     medioIngreso: MedioIngreso;
-
-    @IsEnum(EstadoRegistro)
-    EstadoRegistro: EstadoRegistro;
 }
 

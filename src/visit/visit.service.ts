@@ -40,35 +40,42 @@ export class VisitService {
 
   async findAll(cedulaVisitante: string) {
     try {
+      if (!cedulaVisitante) {
+        throw new Error('La cédula del visitante es requerida');
+      }
+  
       const solicitudes = await this.prisma.solicitudVisita.findMany({
         where: { CedulaVisitante: cedulaVisitante },
       });
   
-      if (!solicitudes.length) {
-        throw new Error('No se encontraron solicitudes para el visitante');
+      if (!solicitudes || solicitudes.length === 0) {
+        return { message: 'No se encontraron solicitudes para este visitante' };
       }
   
       return solicitudes;
     } catch (error) {
       console.error('Error al obtener las solicitudes de visita:', error);
-      throw new Error('Hubo un error al obtener las solicitudes de visita' + error.message);
+      throw new Error('Error al obtener solicitudes de visita: ' + error.message);
     }
   }
+  
+  
+  
 
 
-  async findUserByCedula(cedula: string) {
-    try {
-        if (!cedula) {
-            throw new Error('La cédula no puede estar vacía');
-        }
+  // async findUserByCedula(cedula: string) {
+  //   try {
+  //       if (!cedula) {
+  //           throw new Error('La cédula no puede estar vacía');
+  //       }
 
-        return await this.prisma.usuario.findUnique({
-            where: { NumeroCedula: cedula },
-        });
-    } catch (error) {
-        throw new Error('Error al buscar el usuario: ' + error.message);
-    }
-  }
+  //       return await this.prisma.usuario.findUnique({
+  //           where: { NumeroCedula: cedula },
+  //       });
+  //   } catch (error) {
+  //       throw new Error('Error al buscar el usuario: ' + error.message);
+  //   }
+  // }
 
 
   // async findAll(cedulaVisitante: string) {
