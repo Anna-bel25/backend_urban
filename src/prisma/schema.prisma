@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id               Int       @id @default(autoincrement())
+  nombre           String
+  apellido         String
+  numeroCedula     String    @unique
+  rol              RolUsuario
+  contrasena       String?
+  fotoPerfil       Bytes?
+  biometria        Bytes?
+  manzanaVilla     String?
+  fechaCreacion    DateTime  @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  // Relaciones
+  solicitudesCreadas SolicitudVisita[] @relation("SolicitudesVisitante")
+  solicitudesRecibidas SolicitudVisita[] @relation("SolicitudesResidente")
+  autenticaciones    Autenticacion[]
+
+  // Relación para registros de visita
+  registrosVisitados RegistroVisita[] @relation("RegistrosVisitaVisitante")
+  visitasRegistradas RegistroVisita[] @relation("RegistrosVisitaResidente")
+}
+
+model SolicitudVisita {
+  id               Int        @id @default(autoincrement())
+  visitanteId      Int
+  residenteId      Int
+  fechaHoraVisita  DateTime
+  medioIngreso     MedioIngreso
+  fotoPlaca        String?
+  estadoSolicitud  EstadoSolicitud @default(Ingresada)
+  fechaCreacion    DateTime        @default(now())
+  fechaActualizacion DateTime      @updatedAt
+
+  // Relaciones
+  visitante        Usuario @relation("SolicitudesVisitante", fields: [visitanteId], references: [id])
+  residente        Usuario @relation("SolicitudesResidente", fields: [residenteId], references: [id])
+  historial        HistorialSolicitud[]
+}
+
+model RegistroVisita {
+  id               Int        @id @default(autoincrement())
+  visitanteId      Int
+  residenteId      Int
+  fechaHoraVisita  DateTime
+  medioIngreso     MedioIngreso
+  estadoVisita     EstadoSolicitud @default(Aprobada)
+  fechaCreacion    DateTime        @default(now())
+  fechaActualizacion DateTime      @updatedAt
+
+  // Relaciones
+  visitante        Usuario @relation("RegistrosVisitaVisitante", fields: [visitanteId], references: [id])
+  residente        Usuario @relation("RegistrosVisitaResidente", fields: [residenteId], references: [id])
+}
+
+model HistorialSolicitud {
+  id               Int        @id @default(autoincrement())
+  solicitudId      Int
+  estadoAnterior   EstadoSolicitud
+  estadoNuevo      EstadoSolicitud
+  fechaCambio      DateTime  @default(now())
+
+  // Relaciones
+  solicitud        SolicitudVisita @relation(fields: [solicitudId], references: [id])
+}
+
+model Autenticacion {
+  id               Int       @id @default(autoincrement())
+  usuarioId        Int
+  metodoAutenticacion MetodoAutenticacion
+  fechaAutenticacion DateTime @default(now())
+
+  // Relaciones
+  usuario          Usuario   @relation(fields: [usuarioId], references: [id])
+}
+
+enum RolUsuario {
+  Visitante
+  Residente
+}
+
+enum MedioIngreso {
+  Vehiculo
+  Caminando
+}
+
+enum EstadoSolicitud {
+  Ingresada
+  Aprobada
+  Rechazada
+}
+
+enum MetodoAutenticacion {
+  Tradicional
+  Biometrica
+}
